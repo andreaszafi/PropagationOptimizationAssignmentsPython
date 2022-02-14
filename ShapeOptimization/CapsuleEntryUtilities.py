@@ -10,9 +10,9 @@ http://tudat.tudelft.nl/LICENSE.
 
 AE4866 Propagation and Optimization in Astrodynamics
 Shape Optimization
-First name: ***COMPLETE HERE***
-Last name: ***COMPLETE HERE***
-Student number: ***COMPLETE HERE***
+First name: ***Andreas***
+Last name: ***Zafiropoulos***
+Student number: ***4474538***
 
 This module defines useful functions that will be called by the main script, where the optimization is executed.
 '''
@@ -570,3 +570,6 @@ def compare_benchmarks(first_benchmark: dict,
         save2txt(benchmark_difference, filename, output_path)
     # Return the interpolator
     return benchmark_difference
+
+def get_absolute_distance_from_origin(state):
+    return np.sqrt( (state[0])**2 + (state[1])**2 + (state[2])**2 )

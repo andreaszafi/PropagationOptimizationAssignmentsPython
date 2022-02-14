@@ -10,9 +10,9 @@ http://tudat.tudelft.nl/LICENSE.
 
 AE4866 Propagation and Optimization in Astrodynamics
 Shape Optimization
-First name: ***COMPLETE HERE***
-Last name: ***COMPLETE HERE***
-Student number: ***COMPLETE HERE***
+First name: ***Andreas***
+Last name: ***Zafiropoulos***
+Student number: ***4474538***
 
 This module computes the dynamics of a capsule re-entering the atmosphere of the Earth, using a variety of integrator
 and propagator settings.  For each run, the differences w.r.t. a benchmark propagation are computed, providing a proxy
@@ -127,12 +127,12 @@ import CapsuleEntryUtilities as Util
 spice_interface.load_standard_kernels()
 # NOTE TO STUDENTS: INPUT YOUR PARAMETER SET HERE, FROM THE INPUT FILES
 # ON BRIGHTSPACE, FOR YOUR SPECIFIC STUDENT NUMBER
-shape_parameters = [8.148730872315355,
-                    2.720324489288032,
-                    0.2270385167794302,
-                    -0.4037530896422072,
-                    0.2781438040896319,
-                    0.4559143679738996]
+shape_parameters = [6.1495506149,
+                    2.918920762,
+                    1.3073884546,
+                    -0.453146517,
+                    0.4924978005,
+                    0.3022936508]
 # Choose whether benchmark is run
 use_benchmark = True
 # Choose whether output of the propagation is written to files
@@ -365,6 +365,7 @@ for propagator_index in range(number_of_propagators):
             # Initialize containers
             state_difference = dict()
 
+
             # Loop over the propagated states and use the benchmark interpolators
             # NOTE TO STUDENTS: it can happen that the benchmark ends earlier than the regular simulation, due to
             # the shorter step size. Therefore, the following lines of code will be forced to extrapolate the
@@ -372,9 +373,11 @@ for propagator_index in range(number_of_propagators):
             for epoch in state_history.keys():
                 state_difference[epoch] = state_history[epoch] - benchmark_state_interpolator.interpolate(epoch)
 
+
             # Write differences with respect to the benchmarks to files
             if write_results_to_file:
                 save2txt(state_difference, 'state_difference_wrt_benchmark.dat', output_path)
+
 
             # Do the same for dependent variables, if present
             if are_dependent_variables_to_save:
