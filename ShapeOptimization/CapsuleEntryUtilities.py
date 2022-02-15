@@ -571,5 +571,10 @@ def compare_benchmarks(first_benchmark: dict,
     # Return the interpolator
     return benchmark_difference
 
+
+###########################################################################
+# CUSTOM UTILITIES ########################################################
+###########################################################################
+
 def get_absolute_distance_from_origin(state):
     return np.sqrt( (state[0])**2 + (state[1])**2 + (state[2])**2 )
