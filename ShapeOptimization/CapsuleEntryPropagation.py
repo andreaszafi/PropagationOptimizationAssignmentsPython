@@ -78,13 +78,13 @@ dynamics_simulator.integration_completed_successfully
 
 which returns a boolean (false if any issues have occured)
 
-* A frequent issue can be that a simulation with certain settings runs for too long (for instance if the time steo
+* A frequent issue can be that a simulation with certain settings runs for too long (for instance if the time step
 becomes excessively small). To prevent this, you can add an additional termination setting (on top of the existing ones!)
 
     cpu_tim_termination_settings = propagation_setup.propagator.cpu_time_termination(
         maximum_cpu_time )
 
-where maximum_cpu_time is a varaiable (float) denoting the maximum time in seconds that your simulation is allowed to
+where maximum_cpu_time is a variable (float) denoting the maximum time in seconds that your simulation is allowed to
 run. If the simulation runs longer, it will terminate, and return the propagation results up to that point.
 
 * Finally, if the following error occurs, you can NOT extract the results up to the point of the crash. Instead,
@@ -149,6 +149,7 @@ simulation_start_epoch = 0.0  # s
 # Set termination conditions
 maximum_duration = constants.JULIAN_DAY  # s
 termination_altitude = 25.0E3  # m
+maximum_cpu_time = 2.0 # s
 # Set vehicle properties
 capsule_density = 250.0  # kg m-3
 
@@ -185,7 +186,8 @@ Util.add_capsule_to_body_system(bodies,
 # Retrieve termination settings
 termination_settings = Util.get_termination_settings(simulation_start_epoch,
                                                      maximum_duration,
-                                                     termination_altitude)
+                                                     termination_altitude,
+                                                     maximum_cpu_time)
 # Retrieve dependent variables to save
 dependent_variables_to_save = Util.get_dependent_variable_save_settings()
 # Check whether there is any
@@ -214,7 +216,7 @@ if use_benchmark:
 
     # Generate benchmarks
     #benchmark_time_step = 4.0
-    benchmark_time_step = 4.0
+    benchmark_time_step = 0.01
     benchmark_list = Util.generate_benchmarks(benchmark_time_step,
                                               simulation_start_epoch,
                                               bodies,
@@ -288,7 +290,7 @@ available_propagators = [propagation_setup.propagator.cowell,
 
 # Define settings to loop over
 number_of_propagators = len(available_propagators)
-number_of_integrators = 5
+number_of_integrators = 7
 # For question 2 set the number of propagators to 1:
 number_of_propagators = 1
 
@@ -307,10 +309,13 @@ for propagator_index in range(number_of_propagators):
     # Loop over different integrators
     for integrator_index in range(number_of_integrators):
         # For RK4, more step sizes are used. NOTE TO STUDENTS, MODIFY THESE AS YOU SEE FIT!
-        if integrator_index > 3:
+        print("integrator index = ",integrator_index)
+        if integrator_index > 5:
             number_of_integrator_step_size_settings = 6
+            fixed_step_size_integrator_index = number_of_integrator_step_size_settings
         else:
             number_of_integrator_step_size_settings = 4
+            variable_step_size_integrator_index = number_of_integrator_step_size_settings
 
         # Loop over all tolerances / step sizes
         for step_size_index in range(number_of_integrator_step_size_settings):
@@ -378,7 +383,7 @@ for propagator_index in range(number_of_propagators):
 
 
                 # Write differences with respect to the benchmarks to files
-                print("are we here?")
+                #print("are we here?")
                 if write_results_to_file:
                     save2txt(state_difference, 'state_difference_wrt_benchmark.dat', output_path)
 

@@ -86,7 +86,8 @@ def get_initial_state(simulation_start_epoch: float,
 
 def get_termination_settings(simulation_start_epoch: float,
                              maximum_duration: float,
-                             termination_altitude: float) \
+                             termination_altitude: float,
+                             maximum_cpu_time: float) \
         -> tudatpy.kernel.numerical_simulation.propagation_setup.propagator.PropagationTerminationSettings:
     """
     Get the termination settings for the simulation.
@@ -123,9 +124,13 @@ def get_termination_settings(simulation_start_epoch: float,
         use_as_lower_limit=True,
         terminate_exactly_on_final_condition=False
     )
+    # CPU time
+    cpu_tim_termination_settings = propagation_setup.propagator.cpu_time_termination(
+        maximum_cpu_time)
     # Define list of termination settings
     termination_settings_list = [time_termination_settings,
-                                 lower_altitude_termination_settings]
+                                 lower_altitude_termination_settings,
+                                 cpu_tim_termination_settings]
 
     # Create termination settings object (when either the time of altitude condition is reached: propaation terminates)
     hybrid_termination_settings = propagation_setup.propagator.hybrid_termination(termination_settings_list,
@@ -185,7 +190,9 @@ def get_integrator_settings(propagator_index: int,
             1 -> RK5(6)
             2 -> RK7(8)
             3 -> RKDP7(8)
-            4 -> RK4
+            4 -> BS
+            5 -> ABM
+            6 -> RK4
     settings_index : int
         Index that selects the tolerance or the step size (depending on the integrator type).
     simulation_start_epoch : float
@@ -220,6 +227,37 @@ def get_integrator_settings(propagator_index: int,
             np.inf,
             current_tolerance,
             current_tolerance)
+        print("index = ", integrator_index)
+    elif integrator_index == 4:
+        print("Bulirsch Stoer")
+        # Compute current tolerance
+        current_tolerance = 10.0 ** (-10.0 + settings_index)
+        # Create integrator settings
+        integrator = propagation_setup.integrator
+        # Here (epsilon, inf) are set as respectively min and max step sizes
+        # also note that the relative and absolute tolerances are the same value
+        integrator_settings = integrator.bulirsch_stoer(simulation_start_epoch,
+            1.0,
+            propagation_setup.integrator.ExtrapolationMethodStepSequences.bulirsch_stoer_sequence,
+            5,
+            0.01,
+            10.,
+            current_tolerance,
+            current_tolerance)
+    elif integrator_index == 5:
+        print("Adams Bashfort Moulton")
+        # Compute current tolerance
+        current_tolerance = 10.0 ** (-10.0 + settings_index)
+        # Create integrator settings
+        integrator = propagation_setup.integrator
+        # Here (epsilon, inf) are set as respectively min and max step sizes
+        # also note that the relative and absolute tolerances are the same value
+        integrator_settings = integrator.adams_bashforth_moulton(simulation_start_epoch,
+            1.0,
+            np.finfo(float).eps,
+            np.inf,
+            current_tolerance,
+            current_tolerance)
     # Use fixed step-size integrator
     else:
         # Compute time step
@@ -228,6 +266,7 @@ def get_integrator_settings(propagator_index: int,
         integrator = propagation_setup.integrator
         integrator_settings = integrator.runge_kutta_4(simulation_start_epoch,
                                                        fixed_step_size)
+        print("index = ", integrator_index)
     return integrator_settings
 
 
