@@ -149,7 +149,8 @@ simulation_start_epoch = 0.0  # s
 # Set termination conditions
 maximum_duration = constants.JULIAN_DAY  # s
 termination_altitude = 25.0E3  # m
-maximum_cpu_time = 2.0 # s
+maximum_cpu_time = 2000.0 # s # use this for the benchmark
+maximum_cpu_time = 2.0 # s # use this for the numerical
 # Set vehicle properties
 capsule_density = 250.0  # kg m-3
 

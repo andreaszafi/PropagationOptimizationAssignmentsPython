@@ -66,6 +66,8 @@ if benchmark == True:
     benchmark_2_states = np.loadtxt('SimulationOutput/benchmarks/benchmark_2_states.dat')
     benchmark_states_difference_0_1 = np.loadtxt(
         'SimulationOutput/benchmarks/benchmarks_state_difference_time_step_0.1_s.dat')
+    benchmark_states_difference_0_02 = np.loadtxt(
+        'SimulationOutput/benchmarks/benchmarks_state_difference_time_step_0.02_s.dat')
     benchmark_states_difference_0_2 = np.loadtxt(
         'SimulationOutput/benchmarks/benchmarks_state_difference_time_step_0.2_s.dat')
     benchmark_states_difference_0_3 = np.loadtxt(
@@ -99,6 +101,7 @@ if benchmark == True:
     benchmark_states_difference_12 = np.loadtxt('SimulationOutput/benchmarks/benchmarks_state_difference_time_step_12.0_s.dat')
     benchmark_1_times = benchmark_1_states[:,0]
     benchmark_2_times = benchmark_2_states[:,0]
+    benchmark_difference_times_0_02 = benchmark_states_difference_0_02[:, 0]
     benchmark_difference_times_0_1 = benchmark_states_difference_0_1[:, 0]
     benchmark_difference_times_0_2 = benchmark_states_difference_0_2[:, 0]
     benchmark_difference_times_0_3 = benchmark_states_difference_0_3[:, 0]
@@ -120,6 +123,7 @@ if benchmark == True:
     benchmark_difference_times_12 = benchmark_states_difference_12[:, 0]
     benchmark_1_states = benchmark_1_states[:,1:4]
     benchmark_2_states = benchmark_2_states[:,1:4]
+    benchmark_pos_difference_0_02 = benchmark_states_difference_0_02[:, 1:4]
     benchmark_pos_difference_0_1 = benchmark_states_difference_0_1[:, 1:4]
     benchmark_pos_difference_0_2 = benchmark_states_difference_0_2[:, 1:4]
     benchmark_pos_difference_0_3 = benchmark_states_difference_0_3[:, 1:4]
@@ -175,6 +179,7 @@ if benchmark == True:
     mach_benchmark_2 = np.delete(dep_vars_benchmark_2, 2, axis=1)
 
     benchmark_pos_error_1 = []
+    benchmark_pos_error_0_02 = []
     benchmark_pos_error_0_1 = []
     benchmark_pos_error_0_2 = []
     benchmark_pos_error_0_3 = []
@@ -235,23 +240,25 @@ if benchmark == True:
         benchmark_pos_error_8.append(Util.get_absolute_distance_from_origin(benchmark_pos_difference_8[i, :]))
     for i in range(benchmark_pos_difference_12.shape[0]):
         benchmark_pos_error_12.append(Util.get_absolute_distance_from_origin(benchmark_pos_difference_12[i, :]))
+    for i in range(benchmark_pos_difference_0_02.shape[0]):
+        benchmark_pos_error_0_02.append(Util.get_absolute_distance_from_origin(benchmark_pos_difference_0_02[i, :]))
 
     # Actual plots
 
     fig1 = plt.figure()
     ax1 = fig1.add_subplot(projection='3d')
-    #ax1.plot(xs=benchmark_1_states[:, 0], ys=benchmark_1_states[:, 1], zs=benchmark_1_states[:, 2])
-    ax1.plot(xs=benchmark_2_states[:, 0], ys=benchmark_2_states[:, 1], zs=benchmark_2_states[:, 2])
+    ax1.plot(xs=benchmark_1_states[:, 0], ys=benchmark_1_states[:, 1], zs=benchmark_1_states[:, 2])
+    #ax1.plot(xs=benchmark_2_states[:, 0], ys=benchmark_2_states[:, 1], zs=benchmark_2_states[:, 2])
     ax1.set_xlabel('x (m)')
     ax1.set_ylabel('y (m)')
     ax1.set_zlabel('z (m)')
-    ax1.legend(['Benchmark $\Delta$t = 0.5s re-entry trajectory'])
+    ax1.legend(['Benchmark $\Delta$t = 0.01s re-entry trajectory'])
     ax1.set_title('Re-entry trajectory')
     #ax1.legend(['Benchmark 1 re-entry trajectory','Benchmark 2 re-entry trajectory'])
 
     fig2 = plt.figure()
     #plt.plot(altitude_benchmark_1[:,0],altitude_benchmark_1[:,1],label = ('Benchmark 1'))
-    plt.plot(altitude_benchmark_2[:,0],altitude_benchmark_2[:,1],label = ('$\Delta$t = 0.5s'))
+    plt.plot(altitude_benchmark_1[:,0],altitude_benchmark_1[:,1],label = ('$\Delta$t = 0.01s'))
     plt.xlabel('Time (Seconds)')
     plt.ylabel('Altitude (m)')
     plt.grid()
@@ -259,8 +266,8 @@ if benchmark == True:
     plt.legend()
 
     fig3 = plt.figure()
-    #plt.plot(mach_benchmark_1[:,0],mach_benchmark_1[:,1],label = ('Benchmark 1'))
-    plt.plot(mach_benchmark_2[:,0],mach_benchmark_2[:,1],label = ('$\Delta$t = 0.5s'))
+    plt.plot(mach_benchmark_1[:,0],mach_benchmark_1[:,1],label = ('$\Delta$t = 0.01s'))
+    #plt.plot(mach_benchmark_2[:,0],mach_benchmark_2[:,1],label = ('$\Delta$t = 0.5s'))
     plt.xlabel('Time (Seconds)')
     plt.ylabel('Mach number (-)')
     plt.grid()
@@ -268,8 +275,8 @@ if benchmark == True:
     plt.legend()
 
     fig4 = plt.figure()
-    #plt.plot(mach_benchmark_1[:,1],altitude_benchmark_1[:,1],label = ('Benchmark 1'))
-    plt.plot(mach_benchmark_2[:,1],altitude_benchmark_2[:,1],label = ('$\Delta$t = 0.5s'))
+    plt.plot(mach_benchmark_1[:,1],altitude_benchmark_1[:,1],label = ('$\Delta$t = 0.5s'))
+    #plt.plot(mach_benchmark_2[:,1],altitude_benchmark_2[:,1],label = ('$\Delta$t = 0.01s'))
     plt.xlabel('Mach number (-)')
     plt.ylabel('Altitude (m)')
     plt.grid()
@@ -278,6 +285,7 @@ if benchmark == True:
 
     fig5 = plt.figure()
     ax5 = fig5.add_subplot(1,1,1)
+    ax5.plot(benchmark_difference_times_0_02, benchmark_pos_error_0_02, label=('$\Delta$t = 0.02s'))
     ax5.plot(benchmark_difference_times_0_1, benchmark_pos_error_0_1, label=('$\Delta$t = 0.1s'))
     ax5.plot(benchmark_difference_times_0_2, benchmark_pos_error_0_2, label=('$\Delta$t = 0.2s'))
     ax5.plot(benchmark_difference_times_0_3, benchmark_pos_error_0_3, label=('$\Delta$t = 0.3s'))
@@ -303,8 +311,8 @@ if benchmark == True:
     ax5.grid()
     ax5.set_title('Position error of the benchmarks as a function of time')
     ax5.set_yscale('log')
-    ax5.set_ylim([0.000001,0.1])
-    ax5.set_xlim([1000, 1408])
+    #ax5.set_ylim([0.000001,0.1])
+    #ax5.set_xlim([1000, 1408])
     ax5.legend()
 
 elif shape == True:
