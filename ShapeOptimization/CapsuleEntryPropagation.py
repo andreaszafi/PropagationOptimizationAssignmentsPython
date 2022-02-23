@@ -189,6 +189,10 @@ termination_settings = Util.get_termination_settings(simulation_start_epoch,
                                                      maximum_duration,
                                                      termination_altitude,
                                                      maximum_cpu_time)
+termination_settings_benchmark = Util.get_termination_settings(simulation_start_epoch,
+                                                     maximum_duration,
+                                                     termination_altitude,
+                                                     100*maximum_cpu_time)
 # Retrieve dependent variables to save
 dependent_variables_to_save = Util.get_dependent_variable_save_settings()
 # Check whether there is any
@@ -210,7 +214,7 @@ if use_benchmark:
     benchmark_propagator_settings = Util.get_propagator_settings(shape_parameters,
                                                                  bodies,
                                                                  simulation_start_epoch,
-                                                                 termination_settings,
+                                                                 termination_settings_benchmark,
                                                                  dependent_variables_to_save )
     # Set output path for the benchmarks
     benchmark_output_path = current_dir + '/SimulationOutput/benchmarks/' if write_results_to_file else None

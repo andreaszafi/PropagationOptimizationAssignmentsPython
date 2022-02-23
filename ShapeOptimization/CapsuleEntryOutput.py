@@ -51,9 +51,9 @@ fixed_step_size_integrator_index = 6
 # ACTIVATE SECTIONS #######################################################
 ###########################################################################
 
-benchmark = True
+benchmark = False
 shape = False
-q2b = False
+q2b = True
 
 ###########################################################################
 # BENCHMARK PLOTS #########################################################
@@ -286,7 +286,7 @@ if benchmark == True:
     fig5 = plt.figure()
     ax5 = fig5.add_subplot(1,1,1)
     ax5.plot(benchmark_difference_times_0_02, benchmark_pos_error_0_02, label=('$\Delta$t = 0.02s'))
-    ax5.plot(benchmark_difference_times_0_1, benchmark_pos_error_0_1, label=('$\Delta$t = 0.1s'))
+    #ax5.plot(benchmark_difference_times_0_1, benchmark_pos_error_0_1, label=('$\Delta$t = 0.1s'))
     ax5.plot(benchmark_difference_times_0_2, benchmark_pos_error_0_2, label=('$\Delta$t = 0.2s'))
     ax5.plot(benchmark_difference_times_0_3, benchmark_pos_error_0_3, label=('$\Delta$t = 0.3s'))
     ax5.plot(benchmark_difference_times_0_4, benchmark_pos_error_0_4, label=('$\Delta$t = 0.4s'))
@@ -322,6 +322,7 @@ elif shape == True:
     ax6.scatter(shapefile[:,1],shapefile[:,2],shapefile[:,3])
 
 elif q2b == True:
+    '''
     RK45_dict = {}
     RK45_keys = [10**y for y in [-10 + x for x in range(variable_step_size_integrator_index)]]
     print("RK45_keys = ",RK45_keys)
@@ -341,8 +342,14 @@ elif q2b == True:
         print("shape of error = ",np.array(pos_error).shape)
         #RK45_dict[key] = np.concatenate((np.reshape(RK45_value,(RK45_value.shape[0],1)),pos_error),axis=1)
         #print(RK45_dict[key])
-#print("RK45_dict = ",RK45_dict)
-
+    '''
+    # Loop this over the integrators and for question 3 and 4 also possible over the propagators
+    print(Util.plot_variable_step_size_integrator(0, 0, [0, 1, 2, 3], variable_step_size_integrator_index))
+    print(Util.plot_variable_step_size_integrator(0, 1, [0, 1, 2, 3], variable_step_size_integrator_index))
+    print(Util.plot_variable_step_size_integrator(0, 2, [0, 1, 2, 3], variable_step_size_integrator_index))
+    print(Util.plot_variable_step_size_integrator(0, 3, [0, 1, 2, 3], variable_step_size_integrator_index))
+    print(Util.plot_variable_step_size_integrator(0, 4, [0, 1, 2, 3], variable_step_size_integrator_index))
+    print(Util.plot_variable_step_size_integrator(0, 5, [0, 1, 2, 3], variable_step_size_integrator_index))
 
 plt.show()
 

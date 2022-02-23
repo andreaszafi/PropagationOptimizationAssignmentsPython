@@ -36,6 +36,7 @@ from tudatpy.kernel import numerical_simulation
 from tudatpy.kernel.astro import element_conversion
 from tudatpy.kernel.math import interpolators
 from tudatpy.kernel.math import geometry
+import matplotlib.pyplot as plt
 
 ###########################################################################
 # PROPAGATION SETTING UTILITIES ###########################################
@@ -214,7 +215,7 @@ def get_integrator_settings(propagator_index: int,
         # Select variable-step integrator
         current_coefficient_set = multi_stage_integrators[integrator_index]
         # Compute current tolerance
-        current_tolerance = 10.0 ** (-10.0 + settings_index)
+        current_tolerance = 10.0 ** (-12.0 + settings_index)
         # Create integrator settings
         integrator = propagation_setup.integrator
         # Here (epsilon, inf) are set as respectively min and max step sizes
@@ -231,7 +232,7 @@ def get_integrator_settings(propagator_index: int,
     elif integrator_index == 4:
         print("Bulirsch Stoer")
         # Compute current tolerance
-        current_tolerance = 10.0 ** (-10.0 + settings_index)
+        current_tolerance = 10.0 ** (-12.0 + settings_index)
         # Create integrator settings
         integrator = propagation_setup.integrator
         # Here (epsilon, inf) are set as respectively min and max step sizes
@@ -247,7 +248,7 @@ def get_integrator_settings(propagator_index: int,
     elif integrator_index == 5:
         print("Adams Bashfort Moulton")
         # Compute current tolerance
-        current_tolerance = 10.0 ** (-10.0 + settings_index)
+        current_tolerance = 10.0 ** (-12.0 + settings_index)
         # Create integrator settings
         integrator = propagation_setup.integrator
         # Here (epsilon, inf) are set as respectively min and max step sizes
@@ -617,3 +618,99 @@ def compare_benchmarks(first_benchmark: dict,
 
 def get_absolute_distance_from_origin(state):
     return np.sqrt( (state[0])**2 + (state[1])**2 + (state[2])**2 )
+
+def plot_variable_step_size_integrator(propagator_index: int,
+                                       integrator_index: int,
+                                       step_size_index_list: list,
+                                       variable_step_size_integrator_index: int):
+    # Function to make a dictionary of the error of a specific integrator and propagator combo
+    # The dictionary contains a different integrator setting in every entry
+    # Every entry has the time as a key and the abs pos error as value
+
+    # Dictionary naming
+    # TODO if possible add if statements to turn propagator_name into the actual name of the propagator for the dictionary
+    RK45_dict = {}
+    RK56_dict = {}
+    RK78_dict = {}
+    RKDP78_dict = {}
+    BS_dict = {}
+    ABM_dict = {}
+    RK4_dict = {}
+    RK45_keys = []
+    RK56_keys = []
+    RK78_keys = []
+    RKDP78_keys = []
+    BS_keys = []
+    ABM_keys = []
+    RK4_keys = []
+    integrator_dictionary_list = [RK45_dict,RK56_dict,RK78_dict,RKDP78_dict,BS_dict,ABM_dict,RK4_dict]
+    integrator_keys_list = [RK45_keys, RK56_keys, RK78_keys, RKDP78_keys, BS_keys, ABM_keys, RK4_keys]
+
+    if propagator_index == 0:
+        propagator_name = 'Cowell'
+        print("propagator_name = ",propagator_name)
+    if integrator_index == 0:
+        integrator_name = 'RK4(5)'
+        integrator_dict = integrator_dictionary_list[0]
+        integrator_key = integrator_keys_list[0]
+        print("integrator_name = ",integrator_name)
+    elif integrator_index == 1:
+        integrator_name = 'RK5(6)'
+        integrator_dict = integrator_dictionary_list[1]
+        integrator_key = integrator_keys_list[1]
+    elif integrator_index == 2:
+        integrator_name = 'RK6(7)'
+        integrator_dict = integrator_dictionary_list[2]
+        integrator_key = integrator_keys_list[2]
+    elif integrator_index == 3:
+        integrator_name = 'RKDP7(8)'
+        integrator_dict = integrator_dictionary_list[3]
+        integrator_key = integrator_keys_list[3]
+    elif integrator_index == 4:
+        integrator_name = 'BS'
+        integrator_dict = integrator_dictionary_list[4]
+        integrator_key = integrator_keys_list[4]
+    elif integrator_index == 5:
+        integrator_name = 'ABM'
+        integrator_dict = integrator_dictionary_list[5]
+        integrator_key = integrator_keys_list[5]
+        print("integrator_name = ", integrator_name)
+    elif integrator_index == 6:
+        integrator_name = 'RK4'
+        integrator_dict = integrator_dictionary_list[6]
+        integrator_key = integrator_keys_list[6]
+    else:
+        print("We have no integrator?")
+
+    # Prepare the keys
+
+    for step_size_index in step_size_index_list:
+        print("step size index = ",step_size_index)
+        if integrator_index < 6:
+            integrator_key = [10 ** y for y in [-10 + x for x in range(variable_step_size_integrator_index)]]
+        else:
+            integrator_key = [fixed_step_size_integrator_index]
+
+    # Below here actually import the data
+    for i in range(len(integrator_key)):
+        state_diff_wrt_benchmark = np.loadtxt('SimulationOutput/prop_' + str(propagator_index) + '/int_' + str(integrator_index) + '/step_size_' + str(i) + '/state_difference_wrt_benchmark.dat')
+        time_vector = state_diff_wrt_benchmark[:,0]
+        pos_error = []
+        for j in range(state_diff_wrt_benchmark.shape[0]):
+            pos_error.append(get_absolute_distance_from_origin(state_diff_wrt_benchmark[j, 1:4]))
+        print("shape of time vector = ",time_vector.shape)
+        #print("shape of pos error vector = ", pos_error.shape)
+        integrator_dict[integrator_key[i]] = np.concatenate((np.reshape(time_vector,(time_vector.shape[0],1)),np.reshape(pos_error,(time_vector.shape[0],1))),axis=1)
+
+    fig = plt.figure()
+    for key in integrator_dict.keys():
+        plt.plot(integrator_dict[key][3:-3, 0], integrator_dict[key][3:-3, 1], label=('tol = ' + str(key)))
+    plt.xlabel('Time (s)')
+    plt.ylabel('Absolute position error (m)')
+    plt.grid()
+    plt.yscale('log')
+    plt.title('Integrator = ' + integrator_name)
+    plt.legend()
+
+    ###########################
+    return integrator_dict
