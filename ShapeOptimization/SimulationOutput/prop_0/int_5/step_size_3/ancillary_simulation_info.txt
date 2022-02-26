@@ -1,4 +1,4 @@
-Number of function evaluations (ignore the line above)	41517
+Number of function evaluations (ignore the line above)	14042
 Propagation run successfully	1
 Results written to file	1
 Benchmark run	1

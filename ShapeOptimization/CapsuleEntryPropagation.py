@@ -149,7 +149,7 @@ simulation_start_epoch = 0.0  # s
 # Set termination conditions
 maximum_duration = constants.JULIAN_DAY  # s
 termination_altitude = 25.0E3  # m
-maximum_cpu_time = 2000.0 # s # use this for the benchmark
+maximum_cpu_time_benchmark = 2000.0 # s # use this for the benchmark
 maximum_cpu_time = 2.0 # s # use this for the numerical
 # Set vehicle properties
 capsule_density = 250.0  # kg m-3
@@ -192,7 +192,7 @@ termination_settings = Util.get_termination_settings(simulation_start_epoch,
 termination_settings_benchmark = Util.get_termination_settings(simulation_start_epoch,
                                                      maximum_duration,
                                                      termination_altitude,
-                                                     100*maximum_cpu_time)
+                                                     maximum_cpu_time_benchmark)
 # Retrieve dependent variables to save
 dependent_variables_to_save = Util.get_dependent_variable_save_settings()
 # Check whether there is any
@@ -297,7 +297,10 @@ available_propagators = [propagation_setup.propagator.cowell,
 number_of_propagators = len(available_propagators)
 number_of_integrators = 7
 # For question 2 set the number of propagators to 1:
-number_of_propagators = 1
+#number_of_propagators = 1
+# Make dictionary for the function evaluations
+dict_func_evals = {}
+#dict_func_evals['Variables'] = ['Propagator index |',' Integrator index |',' Tolerance/time step index |',' Number of function evaluations']
 
 # Loop over propagators
 for propagator_index in range(number_of_propagators):
@@ -352,8 +355,11 @@ for propagator_index in range(number_of_propagators):
             # Get the number of function evaluations (for comparison of different integrators)
             function_evaluation_dict = dynamics_simulator.cumulative_number_of_function_evaluations
             number_of_function_evaluations = list(function_evaluation_dict.values())[-1]
+
+
             # Add it to a dictionary
             dict_to_write = {'Number of function evaluations (ignore the line above)': number_of_function_evaluations}
+            dict_func_evals[str(propagator_index)+str(integrator_index)+str(step_size_index)] = [propagator_index, integrator_index, step_size_index, number_of_function_evaluations]
             # Check if the propagation was run successfully
             propagation_outcome = dynamics_simulator.integration_completed_successfully
             dict_to_write['Propagation run successfully'] = propagation_outcome
@@ -386,7 +392,6 @@ for propagator_index in range(number_of_propagators):
                 for epoch in state_history.keys():
                     state_difference[epoch] = state_history[epoch] - benchmark_state_interpolator.interpolate(epoch)
 
-
                 # Write differences with respect to the benchmarks to files
                 #print("are we here?")
                 if write_results_to_file:
@@ -409,3 +414,5 @@ print('\n### ANCILLARY SIMULATION INFORMATION ###')
 for (elem, (info, result)) in enumerate(dict_to_write.items()):
     if elem > 1:
         print(info + ': ' + str(result))
+print(dict_func_evals)
+save2txt(dict_func_evals, 'function_evaluations.dat', current_dir + '/SimulationOutput')

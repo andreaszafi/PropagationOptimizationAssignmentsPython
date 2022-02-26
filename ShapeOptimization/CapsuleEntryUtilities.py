@@ -215,14 +215,14 @@ def get_integrator_settings(propagator_index: int,
         # Select variable-step integrator
         current_coefficient_set = multi_stage_integrators[integrator_index]
         # Compute current tolerance
-        current_tolerance = 10.0 ** (-12.0 + settings_index)
+        current_tolerance = 10.0 ** (-10.0 + settings_index)
         # Create integrator settings
         integrator = propagation_setup.integrator
         # Here (epsilon, inf) are set as respectively min and max step sizes
         # also note that the relative and absolute tolerances are the same value
         integrator_settings = integrator.runge_kutta_variable_step_size(
             simulation_start_epoch,
-            1.0,
+            0.01,
             current_coefficient_set,
             np.finfo(float).eps,
             np.inf,
@@ -232,29 +232,29 @@ def get_integrator_settings(propagator_index: int,
     elif integrator_index == 4:
         print("Bulirsch Stoer")
         # Compute current tolerance
-        current_tolerance = 10.0 ** (-12.0 + settings_index)
+        current_tolerance = 10.0 ** (-10.0 + settings_index)
         # Create integrator settings
         integrator = propagation_setup.integrator
         # Here (epsilon, inf) are set as respectively min and max step sizes
         # also note that the relative and absolute tolerances are the same value
         integrator_settings = integrator.bulirsch_stoer(simulation_start_epoch,
-            1.0,
-            propagation_setup.integrator.ExtrapolationMethodStepSequences.bulirsch_stoer_sequence,
-            5,
             0.01,
-            10.,
+            propagation_setup.integrator.ExtrapolationMethodStepSequences.bulirsch_stoer_sequence,
+            10,
+            np.finfo(float).eps,
+            np.inf,
             current_tolerance,
             current_tolerance)
     elif integrator_index == 5:
         print("Adams Bashfort Moulton")
         # Compute current tolerance
-        current_tolerance = 10.0 ** (-12.0 + settings_index)
+        current_tolerance = 10.0 ** (-10.0 + settings_index)
         # Create integrator settings
         integrator = propagation_setup.integrator
         # Here (epsilon, inf) are set as respectively min and max step sizes
         # also note that the relative and absolute tolerances are the same value
         integrator_settings = integrator.adams_bashforth_moulton(simulation_start_epoch,
-            1.0,
+            0.01,
             np.finfo(float).eps,
             np.inf,
             current_tolerance,
@@ -648,12 +648,10 @@ def plot_variable_step_size_integrator(propagator_index: int,
 
     if propagator_index == 0:
         propagator_name = 'Cowell'
-        print("propagator_name = ",propagator_name)
     if integrator_index == 0:
         integrator_name = 'RK4(5)'
         integrator_dict = integrator_dictionary_list[0]
         integrator_key = integrator_keys_list[0]
-        print("integrator_name = ",integrator_name)
     elif integrator_index == 1:
         integrator_name = 'RK5(6)'
         integrator_dict = integrator_dictionary_list[1]
@@ -674,7 +672,6 @@ def plot_variable_step_size_integrator(propagator_index: int,
         integrator_name = 'ABM'
         integrator_dict = integrator_dictionary_list[5]
         integrator_key = integrator_keys_list[5]
-        print("integrator_name = ", integrator_name)
     elif integrator_index == 6:
         integrator_name = 'RK4'
         integrator_dict = integrator_dictionary_list[6]
@@ -685,26 +682,43 @@ def plot_variable_step_size_integrator(propagator_index: int,
     # Prepare the keys
 
     for step_size_index in step_size_index_list:
-        print("step size index = ",step_size_index)
         if integrator_index < 6:
             integrator_key = [10 ** y for y in [-10 + x for x in range(variable_step_size_integrator_index)]]
+            #print("integrator key for variable step size = ", integrator_key)
         else:
-            integrator_key = [fixed_step_size_integrator_index]
+            integrator_key = range(variable_step_size_integrator_index)
+            #print("integrator key for fixed step size = ",integrator_key)
+
+    # Import benchmark to determine which epochs need to be removed:
+
+    benchmark_states = np.loadtxt('SimulationOutput/benchmarks/benchmark_1_states.dat')
+    time_vector_benchmark = benchmark_states[:,0]
 
     # Below here actually import the data
     for i in range(len(integrator_key)):
         state_diff_wrt_benchmark = np.loadtxt('SimulationOutput/prop_' + str(propagator_index) + '/int_' + str(integrator_index) + '/step_size_' + str(i) + '/state_difference_wrt_benchmark.dat')
-        time_vector = state_diff_wrt_benchmark[:,0]
-        pos_error = []
-        for j in range(state_diff_wrt_benchmark.shape[0]):
-            pos_error.append(get_absolute_distance_from_origin(state_diff_wrt_benchmark[j, 1:4]))
-        print("shape of time vector = ",time_vector.shape)
-        #print("shape of pos error vector = ", pos_error.shape)
-        integrator_dict[integrator_key[i]] = np.concatenate((np.reshape(time_vector,(time_vector.shape[0],1)),np.reshape(pos_error,(time_vector.shape[0],1))),axis=1)
 
+        time_vector = state_diff_wrt_benchmark[:,0]
+        time_vector_save = time_vector
+        pos_error = []
+        #print("integrator index = ",integrator_index)
+        for j in range(state_diff_wrt_benchmark.shape[0]):
+            if state_diff_wrt_benchmark[j,0] <= benchmark_states[3,0] or state_diff_wrt_benchmark[j,0] >= benchmark_states[-4,0]:
+                pos_error.append(0.)
+            else:
+                pos_error.append(get_absolute_distance_from_origin(state_diff_wrt_benchmark[j, 1:4]))
+        integrator_dict[integrator_key[i]] = np.concatenate((np.reshape(time_vector,(time_vector.shape[0],1)),np.reshape(pos_error,(time_vector.shape[0],1))),axis=1)
+        #print("Position error = ",integrator_dict[integrator_key[i]])
+
+    max_error = []
     fig = plt.figure()
+    #print("integrator_dict.keys() = ",integrator_dict.keys())
+    #print("integrator_dict = ",integrator_dict)
     for key in integrator_dict.keys():
-        plt.plot(integrator_dict[key][3:-3, 0], integrator_dict[key][3:-3, 1], label=('tol = ' + str(key)))
+        #print("key = ",key)
+        #print("error list = ",integrator_dict[key])
+        max_error.append(max(integrator_dict[key][:, 1]))
+        plt.plot(integrator_dict[key][:, 0], integrator_dict[key][:, 1], label=('tol = ' + str(key)))
     plt.xlabel('Time (s)')
     plt.ylabel('Absolute position error (m)')
     plt.grid()
@@ -713,4 +727,46 @@ def plot_variable_step_size_integrator(propagator_index: int,
     plt.legend()
 
     ###########################
-    return integrator_dict
+    return integrator_dict, max_error
+
+def plot_function_evaluations(propagator_index,
+                              max_error_list_0,
+                              max_error_list_1,
+                              max_error_list_2,
+                              max_error_list_3,
+                              max_error_list_4,
+                              max_error_list_5,
+                              max_error_list_6):
+
+    # Determine the maximum absolute error
+    print("List of max errors for current integrator = ",max_error_list_0)
+
+    # Determine the number of function evals per step size per integrator
+
+    func_evals_raw = np.loadtxt('SimulationOutput/function_evaluations.dat')
+    print(func_evals_raw)
+    f_e_RK45 = [func_evals_raw[0:4,-1]]
+    f_e_RK56 = [func_evals_raw[4:8, -1]]
+    f_e_RK78 = [func_evals_raw[8:12, -1]]
+    f_e_RKDP78 = [func_evals_raw[12:16, -1]]
+    f_e_BS = [func_evals_raw[16:20, -1]]
+    f_e_ABM = [func_evals_raw[20:24, -1]]
+    f_e_RK4 = [func_evals_raw[24:, -1]]
+
+    fig = plt.figure()
+    plt.plot(np.reshape(f_e_RK45,(4,1)),max_error_list_0, label=('RK45'))
+    plt.plot(np.reshape(f_e_RK56,(4,1)),max_error_list_1, label=('RK56'))
+    plt.plot(np.reshape(f_e_RK78,(4,1)),max_error_list_2, label=('RK78'))
+    plt.plot(np.reshape(f_e_RKDP78,(4,1)),max_error_list_3, label=('RKDP78'))
+    plt.plot(np.reshape(f_e_BS,(4,1)),max_error_list_4, label=('BS'))
+    plt.plot(np.reshape(f_e_ABM,(4,1)),max_error_list_5, label=('ABM'))
+    plt.plot(np.reshape(f_e_RK4, (6, 1)), max_error_list_6, label=('RK4'))
+    plt.xlabel('Function evaluations (-)')
+    plt.ylabel('Maximum absolute position error (m)')
+    plt.grid()
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.title('Propagator = ')
+    plt.legend()
+    return func_evals_raw
+

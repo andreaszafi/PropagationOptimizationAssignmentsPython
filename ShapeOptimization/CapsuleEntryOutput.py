@@ -344,12 +344,17 @@ elif q2b == True:
         #print(RK45_dict[key])
     '''
     # Loop this over the integrators and for question 3 and 4 also possible over the propagators
-    print(Util.plot_variable_step_size_integrator(0, 0, [0, 1, 2, 3], variable_step_size_integrator_index))
-    print(Util.plot_variable_step_size_integrator(0, 1, [0, 1, 2, 3], variable_step_size_integrator_index))
-    print(Util.plot_variable_step_size_integrator(0, 2, [0, 1, 2, 3], variable_step_size_integrator_index))
-    print(Util.plot_variable_step_size_integrator(0, 3, [0, 1, 2, 3], variable_step_size_integrator_index))
-    print(Util.plot_variable_step_size_integrator(0, 4, [0, 1, 2, 3], variable_step_size_integrator_index))
-    print(Util.plot_variable_step_size_integrator(0, 5, [0, 1, 2, 3], variable_step_size_integrator_index))
+    max_error_list_0 = (Util.plot_variable_step_size_integrator(0, 0, [0, 1, 2, 3], variable_step_size_integrator_index))[1]
+    max_error_list_1 = (Util.plot_variable_step_size_integrator(0, 1, [0, 1, 2, 3], variable_step_size_integrator_index))[1]
+    max_error_list_2 = (Util.plot_variable_step_size_integrator(0, 2, [0, 1, 2, 3], variable_step_size_integrator_index))[1]
+    max_error_list_3 = (Util.plot_variable_step_size_integrator(0, 3, [0, 1, 2, 3], variable_step_size_integrator_index))[1]
+    max_error_list_4 = (Util.plot_variable_step_size_integrator(0, 4, [0, 1, 2, 3], variable_step_size_integrator_index))[1]
+    max_error_list_5 = (Util.plot_variable_step_size_integrator(0, 5, [0, 1, 2, 3], variable_step_size_integrator_index))[1]
+    max_error_list_6 = (Util.plot_variable_step_size_integrator(0, 6, [0, 1, 2, 3, 4, 5], fixed_step_size_integrator_index))[1]
+    print("max_error_list_6 = ",max_error_list_6)
+
+    Util.plot_function_evaluations(0,max_error_list_0,max_error_list_1,max_error_list_2,max_error_list_3,max_error_list_4,max_error_list_5,max_error_list_6)
+
 
 plt.show()
 
