@@ -297,7 +297,7 @@ available_propagators = [propagation_setup.propagator.cowell,
 number_of_propagators = len(available_propagators)
 number_of_integrators = 7
 # For question 2 set the number of propagators to 1:
-#number_of_propagators = 1
+number_of_propagators = 1
 # Make dictionary for the function evaluations
 dict_func_evals = {}
 #dict_func_evals['Variables'] = ['Propagator index |',' Integrator index |',' Tolerance/time step index |',' Number of function evaluations']
@@ -316,6 +316,7 @@ for propagator_index in range(number_of_propagators):
 
     # Loop over different integrators
     for integrator_index in range(number_of_integrators):
+    #for integrator_index in [6]:
         # For RK4, more step sizes are used. NOTE TO STUDENTS, MODIFY THESE AS YOU SEE FIT!
         print("integrator index = ",integrator_index)
         if integrator_index > 5:
@@ -327,6 +328,7 @@ for propagator_index in range(number_of_propagators):
 
         # Loop over all tolerances / step sizes
         for step_size_index in range(number_of_integrator_step_size_settings):
+        #for step_size_index in [1]:
             # Print status
             to_print = 'Current run: \n propagator_index = ' + str(propagator_index) + \
                        '\n integrator_index = ' + str(integrator_index) \

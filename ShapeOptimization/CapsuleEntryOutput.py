@@ -243,6 +243,8 @@ if benchmark == True:
     for i in range(benchmark_pos_difference_0_02.shape[0]):
         benchmark_pos_error_0_02.append(Util.get_absolute_distance_from_origin(benchmark_pos_difference_0_02[i, :]))
 
+    benchmark_dependent_variables = np.loadtxt('SimulationOutput/benchmarks/benchmark_1_dependent_variables.dat')
+
     # Actual plots
 
     fig1 = plt.figure()
@@ -275,27 +277,36 @@ if benchmark == True:
     plt.legend()
 
     fig4 = plt.figure()
-    plt.plot(mach_benchmark_1[:,1],altitude_benchmark_1[:,1],label = ('$\Delta$t = 0.5s'))
-    #plt.plot(mach_benchmark_2[:,1],altitude_benchmark_2[:,1],label = ('$\Delta$t = 0.01s'))
-    plt.xlabel('Mach number (-)')
-    plt.ylabel('Altitude (m)')
+    ax4 = fig4.add_subplot(1,1,1)
+    color = 'tab:red'
+    ax4.set_xlabel('Mach number (-)', color=color)
+    ax4.set_ylabel('Altitude (m)')
+    ax4.plot(mach_benchmark_1[:,1],altitude_benchmark_1[:,1],label='Mach number',color=color)
+    ax4.tick_params(axis='x', labelcolor=color)
+
+    axdec = ax4.twiny()
+
+    color = 'tab:blue'
+    axdec.set_xlabel('Norm of the acceleration ($m/s^{2}$)', color=color)
+    axdec.plot(benchmark_dependent_variables[:,3],altitude_benchmark_1[:,1],label='Norm of acceleration',color=color)
+    axdec.tick_params(axis='x', labelcolor=color)
+    fig4.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.grid()
-    plt.title('Altitude vs Mach number')
-    plt.legend()
+    fig4.legend(loc='upper left')
 
     fig5 = plt.figure()
     ax5 = fig5.add_subplot(1,1,1)
-    ax5.plot(benchmark_difference_times_0_02, benchmark_pos_error_0_02, label=('$\Delta$t = 0.02s'))
-    #ax5.plot(benchmark_difference_times_0_1, benchmark_pos_error_0_1, label=('$\Delta$t = 0.1s'))
-    ax5.plot(benchmark_difference_times_0_2, benchmark_pos_error_0_2, label=('$\Delta$t = 0.2s'))
-    ax5.plot(benchmark_difference_times_0_3, benchmark_pos_error_0_3, label=('$\Delta$t = 0.3s'))
-    ax5.plot(benchmark_difference_times_0_4, benchmark_pos_error_0_4, label=('$\Delta$t = 0.4s'))
-    ax5.plot(benchmark_difference_times_0_5, benchmark_pos_error_0_5, label=('$\Delta$t = 0.5s'))
-    ax5.plot(benchmark_difference_times_0_6, benchmark_pos_error_0_6, label=('$\Delta$t = 0.6s'))
-    ax5.plot(benchmark_difference_times_0_7, benchmark_pos_error_0_7, label=('$\Delta$t = 0.7s'))
+    ax5.plot(benchmark_difference_times_0_02[4:-4], benchmark_pos_error_0_02[4:-4], label=('$\Delta$t = 0.02s'))
+    #ax5.plot(benchmark_difference_times_0_1[4:-4], benchmark_pos_error_0_1[4:-4], label=('$\Delta$t = 0.1s'))
+    ax5.plot(benchmark_difference_times_0_2[4:-4], benchmark_pos_error_0_2[4:-4], label=('$\Delta$t = 0.2s'))
+    #ax5.plot(benchmark_difference_times_0_3, benchmark_pos_error_0_3, label=('$\Delta$t = 0.3s'))
+    ax5.plot(benchmark_difference_times_0_4[4:-4], benchmark_pos_error_0_4[4:-4], label=('$\Delta$t = 0.4s'))
+    #ax5.plot(benchmark_difference_times_0_5, benchmark_pos_error_0_5, label=('$\Delta$t = 0.5s'))
+    ax5.plot(benchmark_difference_times_0_6[4:-4], benchmark_pos_error_0_6[4:-4], label=('$\Delta$t = 0.6s'))
+    #ax5.plot(benchmark_difference_times_0_7, benchmark_pos_error_0_7, label=('$\Delta$t = 0.7s'))
     #ax5.plot(benchmark_difference_times_0_8, benchmark_pos_error_0_8, label=('$\Delta$t = 0.8s'))
     #ax5.plot(benchmark_difference_times_0_9, benchmark_pos_error_0_9, label=('$\Delta$t = 0.9s'))
-    #ax5.plot(benchmark_difference_times_1, benchmark_pos_error_1, label=('$\Delta$t = 1.0s'))
+    ax5.plot(benchmark_difference_times_1[4:-4], benchmark_pos_error_1[4:-4], label=('$\Delta$t = 1.0s'))
     #ax5.plot(benchmark_difference_times_1_1, benchmark_pos_error_1_1, label=('$\Delta$t = 1.1s'))
     #ax5.plot(benchmark_difference_times_1_2, benchmark_pos_error_1_2, label=('$\Delta$t = 1.2s'))
     #ax5.plot(benchmark_difference_times_1_3, benchmark_pos_error_1_3, label=('$\Delta$t = 1.3s'))
@@ -314,6 +325,15 @@ if benchmark == True:
     #ax5.set_ylim([0.000001,0.1])
     #ax5.set_xlim([1000, 1408])
     ax5.legend()
+
+
+    fig6 = plt.figure()
+    plt.plot(benchmark_dependent_variables[4:-4,0],benchmark_dependent_variables[4:-4,3],label=('$\Delta$t = 0.01s'))
+    plt.xlabel('Time (s)')
+    plt.ylabel('Acceleration ($m/s^{2}$)')
+    plt.grid()
+    plt.title('Acceleration vs time')
+    plt.legend()
 
 elif shape == True:
     shapefile = np.loadtxt('SimulationOutput/prop_0/int_0/step_size_0/ShapeFile.dat')

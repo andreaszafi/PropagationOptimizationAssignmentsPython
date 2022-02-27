@@ -147,6 +147,7 @@ def get_dependent_variable_save_settings() -> list:
     Currently, the dependent variables saved include:
     - the Mach number
     - the altitude wrt the Earth
+    - Norm of the total acceleration
 
     Parameters
     ----------
@@ -158,7 +159,8 @@ def get_dependent_variable_save_settings() -> list:
         List of dependent variables to save.
     """
     dependent_variables_to_save = [propagation_setup.dependent_variable.mach_number('Capsule', 'Earth'),
-                                   propagation_setup.dependent_variable.altitude('Capsule', 'Earth')]
+                                   propagation_setup.dependent_variable.altitude('Capsule', 'Earth'),
+                                   propagation_setup.dependent_variable.total_acceleration_norm('Capsule')]
     return dependent_variables_to_save
 
 
@@ -753,20 +755,32 @@ def plot_function_evaluations(propagator_index,
     f_e_ABM = [func_evals_raw[20:24, -1]]
     f_e_RK4 = [func_evals_raw[24:, -1]]
 
-    fig = plt.figure()
-    plt.plot(np.reshape(f_e_RK45,(4,1)),max_error_list_0, label=('RK45'))
-    plt.plot(np.reshape(f_e_RK56,(4,1)),max_error_list_1, label=('RK56'))
-    plt.plot(np.reshape(f_e_RK78,(4,1)),max_error_list_2, label=('RK78'))
-    plt.plot(np.reshape(f_e_RKDP78,(4,1)),max_error_list_3, label=('RKDP78'))
-    plt.plot(np.reshape(f_e_BS,(4,1)),max_error_list_4, label=('BS'))
-    plt.plot(np.reshape(f_e_ABM,(4,1)),max_error_list_5, label=('ABM'))
-    plt.plot(np.reshape(f_e_RK4, (6, 1)), max_error_list_6, label=('RK4'))
+    fig10 = plt.figure()
+    plt.plot(np.reshape(f_e_RK45,(4,1)),max_error_list_0, '-x', label=('RK45'))
+    plt.plot(np.reshape(f_e_RK56,(4,1)),max_error_list_1, '-x', label=('RK56'))
+    plt.plot(np.reshape(f_e_RK78,(4,1)), max_error_list_2, '-x', label='RK78')
+    plt.plot(np.reshape(f_e_RKDP78,(4,1)),max_error_list_3, '-x', label=('RKDP78'))
+    plt.plot(np.reshape(f_e_BS,(4,1)),max_error_list_4, '-x', label=('BS'))
+    plt.plot(np.reshape(f_e_ABM,(4,1)),max_error_list_5, '-x', label=('ABM'))
+    plt.plot(np.reshape(f_e_RK4, (6, 1)), max_error_list_6, '-x', label=('RK4'))
     plt.xlabel('Function evaluations (-)')
     plt.ylabel('Maximum absolute position error (m)')
     plt.grid()
     plt.yscale('log')
     plt.xscale('log')
-    plt.title('Propagator = ')
+    plt.title('Propagator = Cowell')
+    plt.legend()
+
+    fig11 = plt.figure()
+    plt.plot(np.reshape(f_e_RK45,(4,1)),max_error_list_0, '-x', label=('RK45'))
+    plt.plot(np.reshape(f_e_RKDP78,(4,1)),max_error_list_3, '-x', label=('RKDP78'))
+    plt.plot(np.reshape(f_e_BS,(4,1)),max_error_list_4, '-x', label=('BS'))
+    plt.xlabel('Function evaluations (-)')
+    plt.ylabel('Maximum absolute position error (m)')
+    plt.grid()
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.title('Propagator = Cowell')
     plt.legend()
     return func_evals_raw
 
